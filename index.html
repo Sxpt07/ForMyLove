@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Untuk Inggrid</title>
+<style>
+  :root {
+    --pink-light: #ffe3ec;
+    --pink-mid: #ffb6c9;
+    --pink-deep: #ff7aa2;
+    --pink-strong: #e63950;
+    --cream: #fff7f8;
+    --text-dark: #6b2e3a;
+    --shadow: rgba(230, 57, 80, 0.25);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: linear-gradient(180deg, var(--pink-light), var(--cream));
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    color: var(--text-dark);
+  }
+
+  .screen {
+    width: 100%;
+    min-height: 100vh;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .screen.active {
+    display: flex;
+    animation: fadeIn 0.6s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ====== SCREEN 1: HEART CHASER (CLAW MACHINE) ====== */
+  .game-title {
+    font-size: 2.2rem;
+    color: var(--pink-strong);
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+  }
+
+  .game-subtitle {
+    font-size: 1rem;
+    color: var(--text-dark);
+    opacity: 0.8;
+    margin-bottom: 24px;
+  }
+
+  .machine {
+    background: var(--pink-mid);
+    border-radius: 24px;
+    padding: 20px;
+    width: min(320px, 85vw);
+    box-shadow: 0 10px 30px var(--shadow);
+    position: relative;
+  }
+
+  .machine-window {
+    background: var(--pink-light);
+    border-radius: 16px;
+    border: 6px solid #fff;
+    height: 280px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rail {
+    position: absolute;
+    top: 16px;
+    left: 8px;
+    right: 8px;
+    height: 6px;
+    background: #c8c8c8;
+    border-radius: 4px;
+  }
+
+  .claw-rig {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: left 1.4s ease-in-out;
+  }
+
+  .claw-button {
+    width: 26px;
+    height: 14px;
+    background: var(--pink-strong);
+    border-radius: 4px;
+    margin: 0 auto;
+  }
+
+  .claw-string {
+    width: 2px;
+    background: var(--text-dark);
+    margin: 0 auto;
+    transition: height 0.6s ease;
+  }
+
+  .claw-grip {
+    width: 28px;
+    height: 28px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .claw-grip::before, .claw-grip::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 22px;
+    border: 3px solid var(--text-dark);
+    border-radius: 0 0 10px 10px;
+    border-top: none;
+    top: 0;
+    transition: transform 0.4s ease;
+  }
+
+  .claw-grip::before { left: 0; transform-origin: top right; }
+  .claw-grip::after { right: 0; transform-origin: top left; }
+
+  .claw-rig.grabbing .claw-grip::before { transform: rotate(25deg); }
+  .claw-rig.grabbing .claw-grip::after { transform: rotate(-25deg); }
+
+  .heart-target {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 3rem;
+    transition: bottom 0.8s ease, opacity 0.5s ease;
+  }
+
+  .heart-target.captured {
+    bottom: 60px;
+    transform: translateX(-50%) scale(0.4);
+    opacity: 0;
+  }
+
+  .bg-hearts {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    overflow: hidden;
+    opacity: 0.3;
+    font-size: 1.4rem;
+    line-height: 1.4;
+    text-align: right;
+    padding-right: 6px;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 18px;
+    gap: 10px;
+  }
+
+  .dir-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: #fff;
+    color: var(--pink-strong);
+    font-size: 1.4rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: transform 0.15s ease;
+  }
+
+  .dir-btn:active { transform: scale(0.9); }
+
+  .seize-btn {
+    flex: 1;
+    background: var(--pink-strong);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 14px 18px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 6px 14px var(--shadow);
+    transition: transform 0.15s ease, background 0.2s ease;
+    font-family: inherit;
+  }
+
+  .seize-btn:active { transform: scale(0.97); }
+  .seize-btn:disabled { opacity: 0.6; cursor: default; }
+
+  .game-hint {
+    margin-top: 16px;
+    font-size: 0.85rem;
+    color: var(--text-dark);
+    opacity: 0.6;
+  }
+
+  /* ====== SCREEN 2: ENVELOPE ====== */
+  .envelope-wrap {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+
+  .envelope-wrap:hover {
+    transform: scale(1.03);
+  }
+
+  .envelope {
+    width: min(320px, 85vw);
+    height: 220px;
+    position: relative;
+    margin-bottom: 24px;
+  }
+
+  .env-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: var(--cream);
+    border-radius: 10px;
+    box-shadow: 0 10px 30px var(--shadow);
+  }
+
+  .env-flap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    border-left: calc(min(320px, 85vw) / 2) solid transparent;
+    border-right: calc(min(320px, 85vw) / 2) solid transparent;
+    border-top: 110px solid var(--pink-deep);
+    z-index: 2;
+  }
+
+  .env-flap-shadow-left {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--pink-mid) 0%, var(--pink-mid) 50%, transparent 50%);
+    z-index: 1;
+  }
+
+  .env-flap-shadow-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(225deg, var(--pink-mid) 0%, var(--pink-mid) 50%, transparent 50%);
+    z-index: 1;
+  }
+
+  .env-heart {
+    position: absolute;
+    top: 38%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.2rem;
+    z-index: 3;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.12); }
+  }
+
+  .click-to-open {
+    font-style: italic;
+    color: var(--pink-strong);
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+  }
+
+  /* ====== SCREEN 3: LETTER ====== */
+  .letter-card {
+    background: var(--cream);
+    border-radius: 18px;
+    box-shadow: 0 14px 36px var(--shadow);
+    width: min(440px, 92vw);
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 36px 28px;
+    position: relative;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 31px,
+      rgba(230, 57, 80, 0.08) 32px
+    );
+  }
+
+  .letter-heading {
+    font-size: 1.8rem;
+    color: var(--pink-strong);
+    font-style: italic;
+    margin-bottom: 20px;
+    text-align: left;
+  }
+
+  .letter-body {
+    font-size: 1.02rem;
+    line-height: 2;
+    text-align: left;
+    color: var(--text-dark);
+    white-space: pre-line;
+  }
+
+  .letter-signature {
+    margin-top: 28px;
+    font-style: italic;
+    font-size: 1.3rem;
+    text-align: right;
+    color: var(--pink-strong);
+  }
+
+  .letter-photos {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    margin: 28px 0;
+    flex-wrap: wrap;
+  }
+
+  .photo-frame {
+    background: #fff;
+    padding: 8px 8px 18px 8px;
+    border-radius: 4px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+    transform: rotate(-3deg);
+  }
+
+  .photo-frame:nth-child(2) {
+    transform: rotate(3deg);
+  }
+
+  .photo-frame img {
+    width: 110px;
+    height: 130px;
+    object-fit: cover;
+    display: block;
+    background: #eee;
+  }
+
+  .continue-btn {
+    display: block;
+    margin: 10px auto 6px;
+    background: var(--pink-strong);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 30px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 6px 14px var(--shadow);
+    font-family: inherit;
+    transition: transform 0.15s ease;
+  }
+
+  .continue-btn:active { transform: scale(0.97); }
+
+  /* ====== SCREEN 4: QUESTION ====== */
+  .question-card {
+    width: min(360px, 90vw);
+  }
+
+  .floating-hearts {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+  }
+
+  .question-title {
+    font-size: 1.6rem;
+    color: var(--pink-strong);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .answer-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+  }
+
+  .answer-btn {
+    border: none;
+    border-radius: 30px;
+    padding: 14px 32px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.15s ease, opacity 0.2s ease;
+  }
+
+  .answer-btn:active { transform: scale(0.96); }
+
+  .yes-btn {
+    background: #4caf50;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(76, 175, 80, 0.35);
+    transition: transform 0.3s ease, font-size 0.3s ease, padding 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .no-btn {
+    background: #888;
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+    position: relative;
+  }
+
+  .no-message {
+    margin-top: 18px;
+    font-size: 0.95rem;
+    color: var(--pink-strong);
+    min-height: 24px;
+    font-weight: bold;
+  }
+
+  /* ====== SCREEN 5: FINAL ====== */
+  .final-heart {
+    font-size: 4rem;
+    margin-bottom: 16px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .final-title {
+    font-size: 1.9rem;
+    color: var(--pink-strong);
+    margin-bottom: 12px;
+  }
+
+  .final-text {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    max-width: 420px;
+    color: var(--text-dark);
+  }
+
+  @media (max-width: 420px) {
+    .game-title { font-size: 1.8rem; }
+    .letter-heading { font-size: 1.5rem; }
+    .question-title { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ================= SCREEN 1: HEART CHASER ================= -->
+  <div class="screen active" id="screen-game">
+    <h1 class="game-title">Heart Chaser</h1>
+    <p class="game-subtitle">Catch my heart if you can! 🧸</p>
+
+    <div class="machine">
+      <div class="machine-window">
+        <div class="rail"></div>
+        <div class="claw-rig" id="clawRig">
+          <div class="claw-button"></div>
+          <div class="claw-string" id="clawString" style="height: 40px;"></div>
+          <div class="claw-grip" id="clawGrip"></div>
+        </div>
+        <div class="heart-target" id="heartTarget">❤️</div>
+        <div class="bg-hearts">💗 💕 💖 💗 💕 💖 💗 💕</div>
+      </div>
+      <div class="controls">
+        <button class="dir-btn" id="leftBtn" aria-label="Geser kiri">←</button>
+        <button class="seize-btn" id="seizeBtn">SEIZE MY HEART</button>
+        <button class="dir-btn" id="rightBtn" aria-label="Geser kanan">→</button>
+      </div>
+    </div>
+    <p class="game-hint">Geser capit lalu tekan tombol untuk menangkap hati 💗</p>
+  </div>
+
+  <!-- ================= SCREEN 2: ENVELOPE ================= -->
+  <div class="screen" id="screen-envelope">
+    <div class="envelope-wrap" id="envelopeWrap">
+      <div class="envelope">
+        <div class="env-back"></div>
+        <div class="env-flap-shadow-left"></div>
+        <div class="env-flap-shadow-right"></div>
+        <div class="env-flap"></div>
+        <div class="env-heart">💌</div>
+      </div>
+    </div>
+    <p class="click-to-open">Click to Open It</p>
+  </div>
+
+  <!-- ================= SCREEN 3: LETTER ================= -->
+  <div class="screen" id="screen-letter">
+    <div class="letter-card">
+      <h2 class="letter-heading">My Dearest Inggrid,</h2>
+      <p class="letter-body">inggridd akuu mauu minta maaff yaaa buattt harii inii jujurr akuu ngerasaa akuu salahh karenaa udahh bikin kamuu bete dan ngasii pertanyaann yangg sebenernyaa gaa perluaa akuu tanyainn akuu juga sadarrr kalauu mungkinng pertanyaann ituu bikin kamuu kepikirann hall yangg sebenernyaa gaa pengenn kamuu bayanginn dan akuu benerr benerr minta maaff buattt ituu akuu gaa ada niatt sedikittt pun buattt bikin kamuu sedihh atauu ngerasaa gaa nyamanng jujurr akuu cumaa khilaff dan gaa mikirr jauhh soal perasaann kamuu saattt ituu tapiii percayaa yaaa sayangg akuu belajarr darii kesalahann inii dan akuu janjii gaa mauu ngulanginn hall yangg samaa lagii karenaa yangg akuu pengenn bukann bikin kamuu sedihh tapiii bikin kamuu senengg dan nyamanng samaa akuu
+
+        dan soal webbb yangg akuu buatt ituu sebenernyaa cumaa salahh satuu cara kecill akuu buattt nunjukinn efforttt akuu ke kamuu mungkinng gaa sempurnaa mungkinng sederhan aa tapiii akuu buatt dengan niatt yangg tuluss karenaa akuu pengenn kamuu tauu kalauu akuu pedulii samaa kamuu dan akuu seriusss samaa kamuu semogaaa kamuu sukaa yaaa dan semogaaa kamuu bisaa liatt kalauu di balik semuaa ituu adaa seseorang yangg lagii berusahaa jadii lebihh baikk dan berusahaa bahagiainn kamuu sedikittt demii sedikittt makasii yaaa udahh maau dengerinn dan maafhh sekalii lagii sayangg
+</p>
+
+      <div class="letter-photos">
+        <div class="photo-frame">
+          <img src="foto1.jpeg" alt="Foto kenangan 1" onerror="this.style.background='#f4d3dc'; this.alt='Ganti dengan foto1.jpeg';">
+        </div>
+        <div class="photo-frame">
+          <img src="foto2.jpeg" alt="Foto kenangan 2" onerror="this.style.background='#f4d3dc'; this.alt='Ganti dengan foto2.jpeg';">
+        </div>
+      </div>
+
+      <p class="letter-signature">With all my love, Kamu.</p>
+
+      <button class="continue-btn" id="continueBtn">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ================= SCREEN 4: QUESTION ================= -->
+  <div class="screen" id="screen-question">
+    <div class="question-card">
+      <div class="floating-hearts">💗</div>
+      <h2 class="question-title" id="questionTitle">Sayang, maafin aku ya?</h2>
+      <div class="answer-row">
+        <button class="answer-btn yes-btn" id="yesBtn">Yes!</button>
+        <button class="answer-btn no-btn" id="noBtn">No</button>
+      </div>
+      <p class="no-message" id="noMessage"></p>
+    </div>
+  </div>
+
+  <!-- ================= SCREEN 5: FINAL ================= -->
+  <div class="screen" id="screen-final">
+    <div class="final-heart">💖</div>
+    <h2 class="final-title">Makasih ya, Inggrid</h2>
+    <p class="final-text">Aku sayang kamu. Makasih udah mau maafin aku, dan makasih udah mau jadi bagian dari hari-hariku. Aku akan terus berusaha jadi lebih baik buat kamu. 🌷</p>
+  </div>
+
+  <script>
+    // ====== UTIL: SCREEN SWITCH ======
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    // ====== SCREEN 1: CLAW MACHINE ======
+    const clawRig = document.getElementById('clawRig');
+    const clawString = document.getElementById('clawString');
+    const heartTarget = document.getElementById('heartTarget');
+    const seizeBtn = document.getElementById('seizeBtn');
+    const leftBtn = document.getElementById('leftBtn');
+    const rightBtn = document.getElementById('rightBtn');
+
+    let clawPos = 50; // percentage from left
+    const step = 12;
+
+    function updateClawPos() {
+      clawPos = Math.max(10, Math.min(90, clawPos));
+      clawRig.style.left = clawPos + '%';
+    }
+
+    leftBtn.addEventListener('click', () => {
+      clawPos -= step;
+      updateClawPos();
+    });
+
+    rightBtn.addEventListener('click', () => {
+      clawPos += step;
+      updateClawPos();
+    });
+
+    seizeBtn.addEventListener('click', () => {
+      seizeBtn.disabled = true;
+
+      // Lower claw
+      clawString.style.height = '160px';
+      clawRig.classList.add('grabbing');
+
+      setTimeout(() => {
+        // Capture heart
+        heartTarget.classList.add('captured');
+
+        setTimeout(() => {
+          // Raise claw
+          clawString.style.height = '40px';
+
+          setTimeout(() => {
+            showScreen('screen-envelope');
+          }, 700);
+        }, 600);
+      }, 700);
+    });
+
+    // ====== SCREEN 2: ENVELOPE ======
+    document.getElementById('envelopeWrap').addEventListener('click', () => {
+      showScreen('screen-letter');
+    });
+
+    // ====== SCREEN 3: LETTER ======
+    document.getElementById('continueBtn').addEventListener('click', () => {
+      showScreen('screen-question');
+    });
+
+    // ====== SCREEN 4: QUESTION ======
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const noMessage = document.getElementById('noMessage');
+
+    let noClickCount = 0;
+    const noResponses = [
+      "Eh jangan gitu dong, harus pilih Yes ya 🥺",
+      "Nggak boleh No, coba klik Yes dong sayang 💗",
+      "Yaaah, satu lagi ya... klik Yes ya~ 🙏",
+      "Aku tunggu Yes-nya ya sayang 🥹💕"
+    ];
+
+    noBtn.addEventListener('click', () => {
+      const msg = noResponses[Math.min(noClickCount, noResponses.length - 1)];
+      noMessage.textContent = msg;
+      noClickCount++;
+
+      // Make "No" button shrink and "Yes" grow a bit for fun
+      noBtn.style.transform = `scale(${Math.max(0.5, 1 - noClickCount * 0.12)})`;
+      yesBtn.style.padding = `${14 + noClickCount * 2}px ${32 + noClickCount * 4}px`;
+      yesBtn.style.fontSize = `${1 + noClickCount * 0.05}rem`;
+    });
+
+    yesBtn.addEventListener('click', () => {
+      showScreen('screen-final');
+    });
+  </script>
+</body>
+</html>
